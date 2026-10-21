@@ -25,7 +25,6 @@ def cost_estimate(token_usage: dict, model_name: str = "gpt-5-nano"):
     Takes in Token Usage information and estimates the cost based on the model's pricing.
     """
 
-    # Pricing per 1K tokens for different models (in USD)
     pricing = {
         "gpt-5-nano": 0.0004,
         "gpt-5-mini": 0.0008,
