@@ -41,6 +41,7 @@ My hands-on learning repo for **LangGraph and agentic AI**. I follow a video cou
    ```
    OPENAI_API_KEY=your-key-here
    AI_MODEL=gpt-5-nano
+   PROVIDER=openai
    ```
 
    `.env` is git-ignored, so your key never gets committed.

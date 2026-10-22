@@ -13,20 +13,18 @@ class State(TypedDict):
     error_text: str 
 
 
-def validate_input(state: State) -> bool:
+def validate_input(state: State) -> State:
     """
     Validates the input text in the state.
     """
 
-    msg = state["input_text"].strip()
+    msg = state["input_text"]
+    msg = msg.strip()
 
     if type(msg) != str:
         state["error_text"] = "Message is not available"
     elif len(msg) > 100:
         state["error_text"] = "Message is more than 100 words"
-    elif type(msg) != str or len(msg)>100:
-        state["error_text"] = "Either Message is not available or the Message is more than 100 words"
-
     else:
         state["error_text"] = ""
 
@@ -76,8 +74,6 @@ first_graph = graph.compile()
 
 if __name__ == "__main__":
     result = first_graph.invoke({"input_text": "Hello, How are you?"})
+    display(Image(first_graph.get_graph().draw_mermaid_png()))
 
     print(result)
-
-
-
