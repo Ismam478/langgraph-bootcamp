@@ -50,10 +50,12 @@ graph.add_edge("summarizer", END)
 
 manual_messages_graph = graph.compile()
 
-result = manual_messages_graph.invoke({"input_text":[HumanMessage(content="Iron Man")]})
 
-final_results = result['messages_manual']
+if __name__ == "__main__":
+    result = manual_messages_graph.invoke({"input_text":[HumanMessage(content="Iron Man")]})
 
-for result in final_results:
-    if isinstance(result, AIMessage):
-        print(result.content)
+    final_results = result['messages_manual']
+
+    for result in final_results:
+        if isinstance(result, AIMessage):
+            print(result.content)

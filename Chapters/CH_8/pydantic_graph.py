@@ -1,5 +1,7 @@
+from os import name
+
 from Chapters.CH_6.llm import get_llm
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from langgraph.graph import StateGraph, START, END
 
 llm_openai = get_llm()
@@ -9,22 +11,17 @@ class State(BaseModel):
     result_text: str = Field(default="", description="The result text after processing")
     error_text: str = Field(default="", description="The error text if any validation fails")
 
-
-def validate_input(state: State) -> State:
-    """
-    Validates the input text in the state.
-    """
-
-    msg = state.input_text.strip()
-
-    if not isinstance(msg, str):
-        state.error_text = "Message is not available"
-    # elif len(msg) < 3:
-    #     state.error_text = "Message is less than 3 words"
-    # elif len(msg) > 200:
-    #     state.error_text = "Message is more than 200 words"
-
-    return state
+    @field_validator("input_text")
+    @classmethod
+    def validate_input(cls, text: str) -> str:
+        """
+        Validates the input text.
+        """
+        if not isinstance(text, str):
+            raise ValueError("Message is not available")
+        elif len(text) > 100:
+            raise ValueError("Message is more than 100 words")
+        return text
 
 def process_text(state: State) -> State:
     """
@@ -34,7 +31,7 @@ def process_text(state: State) -> State:
     curr_msg = state.input_text
 
     if state.error_text == "":
-        result = llm_openai.invoke(curr_msg)
+        result = llm_openai.invoke(f"tell me 1 Line about this topic: {curr_msg}")
         state.result_text = f"AI Message: {result.content}"
 
     return state
@@ -52,19 +49,19 @@ def error_text(state: State) -> State:
 
 graph = StateGraph(State)
 
-graph.add_node("validate_text", validate_input)
 graph.add_node("error_text", error_text)
 graph.add_node("process_text", process_text)
 
-graph.add_edge(START, "validate_text")
-graph.add_edge("validate_text", "error_text")
-graph.add_edge("error_text", "process_text")
-graph.add_edge("process_text", END)
+
+graph.add_edge(START, "process_text")
+graph.add_edge("process_text", "error_text")
+graph.add_edge("error_text", END)
 
 
 pydantic_graph = graph.compile()
 
-result = pydantic_graph.invoke({"input_text": "Hello, How are you?"})
 
+if name == "__main__":
+    result = pydantic_graph.invoke({"input_text": "Iron Man"})
 
-print(result)
+    print(result)
