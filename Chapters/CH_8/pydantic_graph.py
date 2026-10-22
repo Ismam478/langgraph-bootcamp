@@ -1,5 +1,3 @@
-from os import name
-
 from Chapters.CH_6.llm import get_llm
 from pydantic import BaseModel, Field, field_validator
 from langgraph.graph import StateGraph, START, END
@@ -61,7 +59,7 @@ graph.add_edge("error_text", END)
 pydantic_graph = graph.compile()
 
 
-if name == "__main__":
+if __name__ == "__main__":
     result = pydantic_graph.invoke({"input_text": "Iron Man"})
 
     print(result)
