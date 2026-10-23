@@ -8,17 +8,20 @@ llm_openai = get_llm()
 
 class graph_schema(TypedDict):
     input_text: str
+    messages_manual: List
     messages_auto: Annotated[List, add]
 
 def researcher(state: graph_schema) -> graph_schema:
     """
     researches about the input topic using the LLM.
     """
-
-    curr_msg = state["input_text"]
+    curr_msg = []
+    curr_msg.append(state["input_text"])
+    messages_auto = state["messages_auto"]
 
     if curr_msg:
         result = llm_openai.invoke(f"Tell me in 2 lines about: {curr_msg}").content
+        state["messages_manual"] = curr_msg + [AIMessage(content=result)]
         state["messages_auto"] = [AIMessage(content=result)]
         state["input_text"] = result
         
@@ -28,15 +31,17 @@ def summarizer(state: graph_schema) -> graph_schema:
     """
     Summarizes the messages using the LLM.
     """
-
-    curr_msg = state["input_text"]
+    curr_msg = []
+    curr_msg.append(state["input_text"])
+    messages_auto = state["messages_auto"]
 
     if curr_msg:
         result = llm_openai.invoke(f"Summarize it 1 line: {curr_msg}").content
+        state["messages_manual"] = curr_msg + [AIMessage(content=result)]
         state["messages_auto"] = [AIMessage(content=result)]
+        state["input_text"] = result
 
     return state
-
 
 graph = StateGraph(graph_schema)
 
@@ -53,8 +58,9 @@ auto_messages_graph = graph.compile()
 if __name__ == "__main__":
     result = auto_messages_graph.invoke({"input_text":[HumanMessage(content="Iron Man")]})
 
-    final_results = result['messages_auto']
+    final_auto_results = result['messages_auto']
+    final_manual_results = result['messages_manual']
 
-    for result in final_results:
-        if isinstance(result, AIMessage):
-            print(result.content)
+    print(final_auto_results)
+    print("\n\n\n\n")
+    print(final_manual_results)
