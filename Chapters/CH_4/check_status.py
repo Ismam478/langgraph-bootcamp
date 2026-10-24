@@ -11,7 +11,7 @@ def check_status():
 
     import os
 
-    required_vars = ["OPENAI_API_KEY", "AI_MODEL", "PROVIDER"]
+    required_vars = ["OPENAI_API_KEY", "AI_MODEL", "PROVIDER", "CONTEXT_DEV_API_KEY"]
     missing_vars = [var for var in required_vars if not os.getenv(var)]
 
     if missing_vars:
@@ -23,3 +23,7 @@ def check_status():
     print(f"Model: {model}, Provider: {provider}")
     
     return model, provider
+
+
+if __name__ == "__main__":
+    check_status()
