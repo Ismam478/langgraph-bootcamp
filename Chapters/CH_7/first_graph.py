@@ -10,7 +10,7 @@ llm_openai = get_llm()
 class State(TypedDict):
     input_text: str 
     result_text: str 
-    error_text: str 
+    error_text: str = "" # Default value for error_text
 
 
 def validate_input(state: State) -> State:
@@ -19,16 +19,20 @@ def validate_input(state: State) -> State:
     """
 
     msg = state["input_text"]
-    msg = msg.strip()
 
     if type(msg) != str:
-        state["error_text"] = "Message is not available"
-    elif len(msg) > 100:
-        state["error_text"] = "Message is more than 100 words"
-    else:
-        state["error_text"] = ""
-
-    return state
+        return {"error_text": "Message is not available"}
+    
+    if not msg or msg.strip() == "":
+        return {"error_text": "Message is empty"}
+        
+    if msg and type(msg) == str:
+        msg = msg.strip()
+        if len(msg) > 150:
+            return {'error_text': "Message is more than 150 words"}
+        
+        return {"input_text": msg, "error_text": ""}
+    
 
 def route_after_validate(state: State) -> Literal["error", "process"]:
     return "error" if state["error_text"] else "process"
@@ -42,20 +46,16 @@ def process_text(state: State)-> State:
 
     if state["error_text"] == "":
         result = llm_openai.invoke(curr_msg)
-        state["result_text"] = f"AI Message: {result.content}"
 
-    return state
+    return {"result_text": f"AI Message: {result.content}"}
 
 def error_text(state: State) -> State:
     """
     Handles the error text in the state.
     """
 
-    if state["error_text"] != "":
-        state["result_text"] = f"Error: {state['error_text']}"
-
-    
-    return state
+    if state["error_text"]:
+        return {"result_text": f"Error: {state['error_text']}"}
 
 
 graph = StateGraph(State)
@@ -73,7 +73,12 @@ graph.add_edge("process_text", END)
 first_graph = graph.compile()
 
 if __name__ == "__main__":
-    result = first_graph.invoke({"input_text": "Hello, How are you?"})
-    display(Image(first_graph.get_graph().draw_mermaid_png()))
+    # result = first_graph.invoke({"input_text": "Hello, How are you?"})
+    # display(Image(first_graph.get_graph().draw_mermaid_png()))
 
-    print(result)
+    # print(result)
+    for test in ["", "     ", "hello", "x" * 151, 12345]:
+        try:
+            print(repr(test)[:20], "->", first_graph.invoke({"input_text": test}))
+        except Exception as e:
+            print(repr(test)[:20], "-> CRASH:", type(e).__name__, e)
