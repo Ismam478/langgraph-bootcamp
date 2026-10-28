@@ -44,8 +44,7 @@ def process_text(state: State)-> State:
 
     curr_msg = state["input_text"]
 
-    if state["error_text"] == "":
-        result = llm_openai.invoke(curr_msg)
+    result = llm_openai.invoke(curr_msg)
 
     return {"result_text": f"AI Message: {result.content}"}
 

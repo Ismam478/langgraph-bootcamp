@@ -26,7 +26,7 @@ def estimate_cost(usage: dict, price_in: float, price_out: float) -> float:
 
 if __name__ == "__main__":
     # Look up the CURRENT prices for your model and put them here. (I'm using the OpenAI gpt-5-nano model prices as of 2025-08-07)
-    PRICE_IN, PRICE_OUT = 0.05, 0.005  # dollars per 1M tokens
+    PRICE_IN, PRICE_OUT = 0.05, 0.40  # dollars per 1M tokens
 
     _, usage = get_completion_with_usage("Explain what a token is in one sentence.")
     print(f"Estimated cost: ${estimate_cost(usage, PRICE_IN, PRICE_OUT):.6f}")
