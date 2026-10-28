@@ -29,7 +29,7 @@ def validate_input(state: State) -> State:
     if msg and type(msg) == str:
         msg = msg.strip()
         if len(msg) > 150:
-            return {'error_text': "Message is more than 150 words"}
+            return {'error_text': "Message is more than 150 characters"}
         
         return {"input_text": msg, "error_text": ""}
     
@@ -73,12 +73,17 @@ graph.add_edge("process_text", END)
 first_graph = graph.compile()
 
 if __name__ == "__main__":
-    # result = first_graph.invoke({"input_text": "Hello, How are you?"})
-    # display(Image(first_graph.get_graph().draw_mermaid_png()))
+    from pathlib import Path
 
-    # print(result)
-    for test in ["", "     ", "hello", "x" * 151, 12345]:
-        try:
-            print(repr(test)[:20], "->", first_graph.invoke({"input_text": test}))
-        except Exception as e:
-            print(repr(test)[:20], "-> CRASH:", type(e).__name__, e)
+    here = Path(__file__).parent
+    drawing = first_graph.get_graph()
+    try:
+        (here / "graph.png").write_bytes(drawing.draw_mermaid_png())
+        print("Saved graph.png")
+    except Exception as e:
+        (here / "graph.mmd").write_text(drawing.draw_mermaid())
+        print(f"PNG failed ({type(e).__name__}); saved graph.mmd instead")
+        
+    result = first_graph.invoke({"input_text": "x"*150})
+
+    print(result)

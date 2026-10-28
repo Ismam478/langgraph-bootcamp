@@ -4,6 +4,8 @@ from importlib.metadata import version
 
 load_dotenv(find_dotenv())
 
+required_vars = ["OPENAI_API_KEY", "AI_MODEL", "PROVIDER"]
+
 def check_status():
     """
     Checks the status if the environment variables are loaded correctly.
@@ -11,7 +13,6 @@ def check_status():
 
     import os
 
-    required_vars = ["OPENAI_API_KEY", "AI_MODEL", "PROVIDER", "CONTEXT_DEV_API_KEY"]
     missing_vars = [var for var in required_vars if not os.getenv(var)]
 
     if missing_vars:

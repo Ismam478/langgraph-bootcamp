@@ -1,45 +1,32 @@
-from langchain_openai import ChatOpenAI
+from Chapters.CH_6.llm import get_llm
 
-def get_completion_with_usage(prompt: str, model_name: str = "gpt-5-nano", temperature: float = 0):
+
+def get_completion_with_usage(prompt: str, system: str = "You are a helpful assistant.", temperature: float = 0):
     """
-    Takes in User prompt and returns the completion along with Token Usage information.
+    Sends a system + user message to the LLM and returns (response, usage).
     """
+    response = get_llm(temperature=temperature).invoke([("system", system), ("human", prompt)])
+    usage = response.usage_metadata  
 
-    from Chapters.CH_4.check_status import check_status
-    model_name, is_loaded = check_status()
-
-    llm_openai = ChatOpenAI(model_name=model_name, temperature=temperature)
-    response = llm_openai.invoke(prompt)
-    token_usage = response.response_metadata['token_usage']
-
-    print(f"Completion Token Usage: {token_usage['completion_tokens']}")
-    print(f"Prompt Token Usage: {token_usage['prompt_tokens']}")
-    print(f"Total Token Usage: {token_usage['total_tokens']}")
+    print(f"Input tokens:  {usage['input_tokens']}")
+    print(f"Output tokens: {usage['output_tokens']}")
+    print(f"Total tokens:  {usage['total_tokens']}")
     print(f"Answer: {response.content}")
+    return response, usage
 
-    return response, token_usage
 
-
-def cost_estimate(token_usage: dict, model_name: str = "gpt-5-nano"):
+def estimate_cost(usage: dict, price_in: float, price_out: float) -> float:
     """
-    Takes in Token Usage information and estimates the cost based on the model's pricing.
+    Estimated api cost in dollars.
     """
+    cost_in = usage["input_tokens"] / 1_000_000 * price_in
+    cost_out = usage["output_tokens"] / 1_000_000 * price_out
+    return cost_in + cost_out
 
-    pricing = {
-        "gpt-5-nano": 0.0004,
-        "gpt-5-mini": 0.0008,
-        "gpt-5-medium": 0.0016,
-        "gpt-5-large": 0.0032,
-        "gpt-5-xl": 0.0064
-    }
 
-    if model_name not in pricing:
-        raise ValueError(f"Pricing information for model '{model_name}' is not available.")
+if __name__ == "__main__":
+    # Look up the CURRENT prices for your model and put them here. (I'm using the OpenAI gpt-5-nano model prices as of 2025-08-07)
+    PRICE_IN, PRICE_OUT = 0.05, 0.005  # dollars per 1M tokens
 
-    cost_per_1k_tokens = pricing[model_name]
-    total_tokens = token_usage['total_tokens']
-    estimated_cost = (total_tokens / 1000) * cost_per_1k_tokens
-
-    print(f"Estimated Cost for {total_tokens} tokens using {model_name}: ${estimated_cost:.6f}")
-    return estimated_cost
-
+    _, usage = get_completion_with_usage("Explain what a token is in one sentence.")
+    print(f"Estimated cost: ${estimate_cost(usage, PRICE_IN, PRICE_OUT):.6f}")
