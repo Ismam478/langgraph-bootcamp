@@ -82,13 +82,13 @@ LEARNING_LOG.md   skills, goals and progress tracker
 | Chapter | Topic | Status |
 |---------|-------|--------|
 | 1 | Introduction | Done |
-| 4 | LangGraph setup | In progress (fixing error handling) |
-| 5 | OpenAI API and cost | In progress |
-| 6 | Connecting to LLMs | In progress |
-| 7 | First state graph | Redoing with conditional edges |
-| 8 | Pydantic schemas in graphs | In progress |
-| 9 | Messages and reducers | In progress |
-| 10-19 | Chatbot, tools, ReAct, workflows, memory, human-in-the-loop | Not started |
+| 4 | LangGraph setup | Done |
+| 5 | OpenAI API and cost | Done |
+| 6 | Connecting to LLMs | Done |
+| 7 | First state graph | Redoing Done |
+| 8 | Pydantic schemas in graphs | Done |
+| 9 | Messages and reducers | Done |
+| 10-19 | Chatbot, tools, ReAct, workflows, memory, human-in-the-loop | In Progress |
 | Capstone | Support Triage Assistant | Not started |
 
 Detailed notes are in [LEARNING_LOG.md](LEARNING_LOG.md).
@@ -99,9 +99,7 @@ Detailed notes are in [LEARNING_LOG.md](LEARNING_LOG.md).
 - Estimating LLM cost from token usage
 - Building state graphs with TypedDict and Pydantic state
 - Using reducers to combine values written by different nodes
-
-## Next steps
-
-- Conditional edges and tests for each graph path
-- Provider-independent `get_llm()` driven by `.env`
-- Tool binding and a ReAct agent from scratch
+- TypedDict vs Pydantic state, and what a reducer does
+- A node returns a dict of the keys it changes, and LangGraph merges it into the state
+- Conditional edges: a routing function decides the next node
+- Testing a graph with a fake LLM, including proving the LLM is skipped on bad input

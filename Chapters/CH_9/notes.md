@@ -11,12 +11,12 @@ Why: Each node's return replaces the old value. "Iron Man" and "one" were lost.
 
 ## Experiment B: add_messages
 Code: `Annotated[list, add_messages]`
-Output: `['Iron Man', 'one', 'two']`
+Output: `['one', 'two']`
 Why: The reducer appends the new messages to the old ones.
 
 ## Experiment C: Own Reducer
 Code: `Annotated[list, own_reducer]`
-Output: `['Iron Man', 'one', 'two', '']`
+Output: `['one', 'two']`
 Why: The reducer appends the new messages to the old ones, also I have total control over the messages.
 
 ## MessagesState

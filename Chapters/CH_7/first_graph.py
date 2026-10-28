@@ -10,7 +10,7 @@ llm_openai = get_llm()
 class State(TypedDict):
     input_text: str 
     result_text: str 
-    error_text: str = "" # Default value for error_text
+    error_text: str
 
 
 def validate_input(state: State) -> State:

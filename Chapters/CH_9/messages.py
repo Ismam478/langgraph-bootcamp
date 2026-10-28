@@ -11,7 +11,10 @@ def own_reducer(old: list, new: list) -> list:
     merged = list(old)
     for item in new:
         if item not in merged:
-            merged.append(item)
+            if isinstance(item, RemoveMessage):
+                merged = [m for m in merged if getattr(m, "id", None) != item.id]
+            elif item not in merged:
+                merged.append(item)
     return merged
 
 class StateA(TypedDict):
