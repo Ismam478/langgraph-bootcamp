@@ -14,6 +14,11 @@ Code: `Annotated[list, add_messages]`
 Output: `['Iron Man', 'one', 'two']`
 Why: The reducer appends the new messages to the old ones.
 
+## Experiment C: Own Reducer
+Code: `Annotated[list, own_reducer]`
+Output: `['Iron Man', 'one', 'two']`
+Why: The reducer appends the new messages to the old ones, also I have total control over the messages.
+
 ## MessagesState
 Same result as B. It is a prebuilt state with a `messages` field that already uses add_messages.
 
