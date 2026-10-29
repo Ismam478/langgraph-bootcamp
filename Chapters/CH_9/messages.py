@@ -12,7 +12,8 @@ def own_reducer(old: list, new: list) -> list:
     for item in new:
         if item not in merged:
             if isinstance(item, RemoveMessage):
-                merged = [m for m in merged if getattr(m, "id", None) != item.id]
+                if item.id is not None:
+                    merged = [m for m in merged if getattr(m, "id", None) != item.id]
             elif item not in merged:
                 merged.append(item)
     return merged

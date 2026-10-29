@@ -31,6 +31,6 @@ Right tool chosen: clear 10/10, vague 8/10
 
 ## Gate: the 4-step tool-call flow, in my own words
 1. Bind: Binding the tools with the LLM
-2. Model requests: The model gets invoked with the custom tool to solve the user query
-3. My code runs: Each time the LLM gets the whole convos for it to process
-4. ToolMessage returns: `ToolMessage(content='{content_here}', tool_call_id='{tool_call_id}')`
+2. Model requests: the LLM chose which tool and what arguments to use 
+3. My code runs: My code executed the function and wrapped the result in a ToolMessage 
+4. ToolMessage returns: `ToolMessage(content='{content_here}', tool_call_id='{tool_call_id}')` Here, Toolmessage content is like a scratch pad for LLM, either to use the content for updating the LLM for information or to use the tool_call_id as a slip to know which AIMessage is this tool message related to.
