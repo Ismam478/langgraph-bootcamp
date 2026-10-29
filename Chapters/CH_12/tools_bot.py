@@ -11,7 +11,6 @@ def calculator(operation: Literal["add", "subtract", "multiply", "divide"], a: U
     '''
     A simple calculator tool that performs basic arithmetic operations like addition, subtraction, multiplication, and division.
     '''
-    print(">>> calculator is RUNNING")
     if operation == "add":
         return a + b
     elif operation == "subtract":
@@ -65,7 +64,6 @@ messages = system_prompt.copy()
 if __name__ == "__main__":
 
     response = tools_llm.invoke(system_prompt + [HumanMessage(content="What is 5 times 100? then divide by 20, then add 200.")])
-    print("--- model has replied")
     print(f"Tool calls: {response.tool_calls}")
 
     messages.append(response)
