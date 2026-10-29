@@ -34,3 +34,6 @@ Right tool chosen: clear 10/10, vague 8/10
 2. Model requests: the LLM chose which tool and what arguments to use 
 3. My code runs: My code executed the function and wrapped the result in a ToolMessage 
 4. ToolMessage returns: `ToolMessage(content='{content_here}', tool_call_id='{tool_call_id}')` Here, Toolmessage content is like a scratch pad for LLM, either to use the content for updating the LLM for information or to use the tool_call_id as a slip to know which AIMessage is this tool message related to.
+
+## Why does the model needs the whole conversation every time
+- The LLM needs the whole converstation to process the history with the user and for processing the tools messages
