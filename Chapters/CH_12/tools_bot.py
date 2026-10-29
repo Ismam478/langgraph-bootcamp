@@ -62,8 +62,11 @@ tools_llm = get_llm().bind_tools(clear_tools)
 system_prompt = [SystemMessage(content="You are a helpful assistant. Dont try to make things on your own, use the tools to solve the problem. If you are unable to use the tools, say so.")]
 messages = system_prompt.copy()
 if __name__ == "__main__":
-
-    response = tools_llm.invoke(system_prompt + [HumanMessage(content="What is 5 times 100? then divide by 20, then add 200.")])
+    
+    messages.append(HumanMessage(content="What is 5 times 100? then divide by 20, then add 200."))
+    
+    response = tools_llm.invoke(messages)
+    
     print(f"Tool calls: {response.tool_calls}")
 
     messages.append(response)
