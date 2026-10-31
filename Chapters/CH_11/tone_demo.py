@@ -1,6 +1,3 @@
-"""
-Run: uv run python -m Chapters.CH_11.tone_demo
-"""
 from langchain_core.messages import HumanMessage
 
 from Chapters.CH_11.chatbot_with_template import chat_graph
