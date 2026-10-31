@@ -4,7 +4,7 @@
 **When I'd use it:** Before running anything at scale, to know what a run will cost.
 
 ## Prices used 
-- Model: `gpt-5-nano`  Input: $0.05 per 1M tokens  Output: $0.005 per 1M tokens  Source + date: 2025-08-07
+- Model: `gpt-5-nano`  Input: $0.05 per 1M tokens  Output: $0.4 per 1M tokens  Source + date: 2025-08-07
 
 ## Gate answers 
 - What is a token?

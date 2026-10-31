@@ -30,5 +30,5 @@ I built a custom LangGraph ReAct agent from scratch, manually wiring the nodes t
 - Jobs `ToolNode` took over from my code: It automatically loops through the requested tools, runs the functions, and wraps the outputs in ToolMessage
 - Default behaviour on a tool error (my prediction → what happened): I guessed it might handle them, but without extra setup, it often just lets the Python exception crash the whole chain.
 - With `handle_tool_errors`: It catches the crash and sends a generic "tool failed" message back to the model.
-- Error text: mine vs ToolNode's, which helps the model more? Mine is way better. Instead of a generic error, I can pass the exact exception text (like `ValueError: Cannot divide by zero`) straight to the model so it actually knows how to fix its mistake.
-- What I'd choose in a real project, and why: Custom node, hands down. I need total control to run tools concurrently, add human approval steps before dangerous tools run, and handle errors my specific way.
+- Error text: mine vs ToolNode's, which helps the model more? Mine is way better. It includes the exception text but with my custom one, I can handle the errors more accurately
+- What I'd choose in a real project, and why: Custom node, hands down. I need total control to run tools concurrently with `asyncio` (To make the process run smoother and faster), add human approval steps before dangerous tools run, and handle errors my specific way.
