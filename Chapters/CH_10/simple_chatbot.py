@@ -19,13 +19,15 @@ builder.add_edge(START, "chatbot")
 builder.add_edge("chatbot", END)
 chat_graph = builder.compile()
 
-history = []
-while True:
-    user_input = input("User: ")
-    if user_input.lower() in ["exit", "quit"]:
-        break
 
-    history.append(HumanMessage(content=user_input))
-    history = chat_graph.invoke({"messages": history})['messages']
-    print("AI:", history[-1].content)
+if __name__ == "__main__":
+    history = []
+    while True:
+        user_input = input("User: ")
+        if user_input.lower() in ["exit", "quit"]:
+            break
+
+        history.append(HumanMessage(content=user_input))
+        history = chat_graph.invoke({"messages": history})['messages']
+        print("AI:", history[-1].content)
 

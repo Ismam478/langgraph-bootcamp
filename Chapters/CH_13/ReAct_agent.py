@@ -77,7 +77,7 @@ def contextdev_search_tool(query: str) -> str:
 # Creating tool_box
 tool_box = [calculator, get_current_datetime, contextdev_search_tool, length_of_string, try_again]
 
-llm_with_tools = get_llm().bind_tools(tool_box)
+
 
 # Creating the LLM Node
 def llm_node(state:graph_schema):
@@ -86,7 +86,7 @@ def llm_node(state:graph_schema):
     '''
     messages = state['messages']
     
-
+    llm_with_tools = get_llm().bind_tools(tool_box)
     prompt = ChatPromptTemplate.from_messages([
         ('system', 'Imagine you are a helpful assistant, who uses only the provided tools to answer the user\'s question(dont try to find the answer on your own). Also dont make up answers, say "I dont Know" for the things you cannot answer'),
         # ('user', '{user_input}')

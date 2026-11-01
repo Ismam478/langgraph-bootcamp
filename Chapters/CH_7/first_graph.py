@@ -4,8 +4,6 @@ from pydantic import Field
 from langgraph.graph import StateGraph, START, END
 from IPython.display import Image, display
 
-llm_openai = get_llm()
-
 # Defining a TypedDict State
 class State(TypedDict):
     input_text: str 
@@ -41,6 +39,7 @@ def process_text(state: State)-> State:
     """
     Processes The Input Text.
     """
+    llm_openai = get_llm()
 
     curr_msg = state["input_text"]
 

@@ -2,7 +2,6 @@ from Chapters.CH_6.llm import get_llm
 from pydantic import BaseModel, Field, field_validator
 from langgraph.graph import StateGraph, START, END
 
-llm_openai = get_llm()
 
 class State(BaseModel):
     input_text: str = Field(..., description="The input text to be processed", min_length=3, max_length=200)
@@ -17,6 +16,7 @@ def process_text(state: State) -> State:
     """
     Processes the input text.
     """
+    llm_openai = get_llm()
 
     curr_msg = state.input_text
 
