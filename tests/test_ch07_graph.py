@@ -39,19 +39,19 @@ def test_graph_string(monkeypatch):
     fake_llm = FakeLLM()
     monkeypatch.setattr(first_graph_module, "get_llm",lambda: fake_llm)
     result = first_graph_module.first_graph.invoke({"input_text": "hello"})
-    assert len(first_graph_module.get_llm.calls) == 1
+    assert len(first_graph_module.fake_llm.calls) == 1
     assert result == {'input_text': 'hello', "result_text": "AI Message: Hello, I am a fake LLM. You said: hello", 'error_text': ''}
 
 def test_graph_blank(monkeypatch):
     fake_llm = FakeLLM()
     monkeypatch.setattr(first_graph_module, "get_llm",lambda: fake_llm)
     result = first_graph_module.first_graph.invoke({"input_text": ""})
-    assert len(first_graph_module.get_llm.calls) == 0
+    assert len(first_graph_module.fake_llm.calls) == 0
     assert result == {'input_text': '', "result_text": "Error: Message is empty", 'error_text': "Message is empty"}
 
 def test_graph_over_limit(monkeypatch):
     fake_llm = FakeLLM()
     monkeypatch.setattr(first_graph_module, "get_llm",lambda: fake_llm)
     result = first_graph_module.first_graph.invoke({"input_text": "x"*151})
-    assert len(first_graph_module.get_llm.calls) == 0
+    assert len(first_graph_module.fake_llm.calls) == 0
     assert result == {'input_text': 'x'*151, "result_text": "Error: Message is more than 150 characters", 'error_text': "Message is more than 150 characters"}

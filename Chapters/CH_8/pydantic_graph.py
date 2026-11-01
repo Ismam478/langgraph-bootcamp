@@ -4,7 +4,7 @@ from langgraph.graph import StateGraph, START, END
 
 
 class State(BaseModel):
-    input_text: str = Field(..., description="The input text to be processed", min_length=3, max_length=200)
+    input_text: str = Field(..., description="The input text to be processed", min_length=3, max_length=200, mode='before')
     result_text: str = Field(default="", description="The result text after processing")
 
     @field_validator("input_text")

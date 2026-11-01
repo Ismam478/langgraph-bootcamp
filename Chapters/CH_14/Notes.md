@@ -11,8 +11,7 @@ Instead of hardcoding three separate edges:
 `graph.add_edge('linkedin', 'aggregator')`
 `graph.add_edge('twitter', 'aggregator')`
 
-Separate edges worked in your graph because all three branches are the same depth. They all finish in the same step.
-
+Separate edges worked in my graph because all three branches are the same depth. They all finish in the same step.
 `graph.add_edge(['insta', 'linkedin', 'twitter'], 'aggregator')`
 
 ## 3. The Same-Key Error (`research_results`)

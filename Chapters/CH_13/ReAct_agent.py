@@ -10,6 +10,9 @@ from langgraph.errors import GraphRecursionError
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import StateGraph, START, END, add_messages
 
+# Real ToolNode
+from langgraph.prebuilt import ToolNode
+
 
 # Defining The State Graph
 class graph_schema(TypedDict):
@@ -139,7 +142,8 @@ def if_tool_call(state:graph_schema):
 graph = StateGraph(graph_schema)
 
 graph.add_node('llm_node', llm_node)
-graph.add_node('tool_node', custom_tool_node)
+# graph.add_node('tool_node', custom_tool_node)
+graph.add_node('tool_node', ToolNode(tool_box, handle_tool_errors=True))
 
 graph.add_edge(START, 'llm_node')
 graph.add_conditional_edges('llm_node', if_tool_call, {'tool_node': 'tool_node', 'end': END})
