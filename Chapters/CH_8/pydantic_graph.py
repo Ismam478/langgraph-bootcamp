@@ -4,10 +4,10 @@ from langgraph.graph import StateGraph, START, END
 
 
 class State(BaseModel):
-    input_text: str = Field(..., description="The input text to be processed", min_length=3, max_length=200, mode='before')
+    input_text: str = Field(..., description="The input text to be processed", min_length=3, max_length=200)
     result_text: str = Field(default="", description="The result text after processing")
 
-    @field_validator("input_text")
+    @field_validator("input_text", mode='before')
     @classmethod
     def validate_input(cls, text: str) -> str:
         return text.strip() if isinstance(text, str) else text
