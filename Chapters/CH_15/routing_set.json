@@ -1,0 +1,92 @@
+[
+  {
+    "query": "Why does my latest statement show $29 when I thought my plan was $19?",
+    "expected": "billing",
+    "tricky": false,
+    "why": "Amount on a statement: money question."
+  },
+  {
+    "query": "Can you send me a receipt for last month's payment?",
+    "expected": "billing",
+    "tricky": false,
+    "why": "Receipt for a payment."
+  },
+  {
+    "query": "I cancelled last week but I was charged again today.",
+    "expected": "billing",
+    "tricky": false,
+    "why": "Unexpected charge after cancelling: money/subscription."
+  },
+  {
+    "query": "I'd like to upgrade to the yearly plan. What would I pay in total?",
+    "expected": "billing",
+    "tricky": false,
+    "why": "Plan change and price."
+  },
+  {
+    "query": "I was charged twice after the app crashed during checkout. Please fix it and refund the extra charge.",
+    "expected": "billing",
+    "tricky": true,
+    "why": "Mentions a crash (tech keyword), but what the customer needs resolved is a duplicate charge and refund. Rule R1: the ask is about money."
+  },
+  {
+    "query": "The app closes by itself every time I open the reports page.",
+    "expected": "tech",
+    "tricky": false,
+    "why": "Crash/bug."
+  },
+  {
+    "query": "I keep getting 'invalid token' when I try to log in on my phone.",
+    "expected": "tech",
+    "tricky": false,
+    "why": "Login error."
+  },
+  {
+    "query": "How do I export my data to a CSV file?",
+    "expected": "tech",
+    "tricky": false,
+    "why": "How to use a specific feature (tech by the definition)."
+  },
+  {
+    "query": "Everything has been extremely slow since this morning. Is there an outage?",
+    "expected": "tech",
+    "tricky": false,
+    "why": "Performance/outage."
+  },
+  {
+    "query": "The payment page shows an error every time I try to renew, so I can't pay.",
+    "expected": "tech",
+    "tricky": true,
+    "why": "Mentions payment and renewing (billing keywords), but the thing that is broken is the page itself. Rule R2: product not working means tech."
+  },
+  {
+    "query": "What are your support hours on public holidays?",
+    "expected": "general",
+    "tricky": false,
+    "why": "Opening hours (mentions 'support' but is a company-information question)."
+  },
+  {
+    "query": "Do you have a partnership program for agencies?",
+    "expected": "general",
+    "tricky": false,
+    "why": "Business inquiry."
+  },
+  {
+    "query": "Where is your company headquartered?",
+    "expected": "general",
+    "tricky": false,
+    "why": "Company information."
+  },
+  {
+    "query": "I just wanted to say the new dashboard looks great. Keep it up!",
+    "expected": "general",
+    "tricky": false,
+    "why": "Positive feedback; nothing to fix or pay."
+  },
+  {
+    "query": "My last support ticket took two weeks to get answered and I'm thinking of cancelling my subscription. Who can I send this complaint to?",
+    "expected": "general",
+    "tricky": true,
+    "why": "Mentions cancelling a subscription (billing keyword), but the ask is where to send a complaint. Rule R3: feedback and complaints are general."
+  }
+]

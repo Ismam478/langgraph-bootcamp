@@ -11,7 +11,7 @@ general = "Anything else that doesn't fit into billing or technical support. Thi
 
 
 # Conditional Router
-ROUTER_PROMPT_V1 = f"You are professional categorizer, these are the categories: Billing: {billing}, Technical: {tech}, General: {general}. I want you to find and give me the category of the user's query."
+ROUTER_PROMPT_V1 = f"You are professional categorizer, these are the categories: Billing: {billing}, Tech: {tech}, General: {general}. I want you to find and give me the category of the user's query."
 
 # Routing graph
 class Route(BaseModel):
