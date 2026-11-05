@@ -1,0 +1,117 @@
+{
+    "summary": {
+        "accuracy": "100.0%",
+        "per_category": {
+            "general": 5,
+            "tech": 5,
+            "billing": 5
+        }
+    },
+    "results": [
+        {
+            "query": "Why does my latest statement show $29 when I thought my plan was $19?",
+            "expected": "billing",
+            "predicted": "billing",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "Can you send me a receipt for last month's payment?",
+            "expected": "billing",
+            "predicted": "billing",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "I cancelled last week but I was charged again today.",
+            "expected": "billing",
+            "predicted": "billing",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "I'd like to upgrade to the yearly plan. What would I pay in total?",
+            "expected": "billing",
+            "predicted": "billing",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "I was charged twice after the app crashed during checkout. Please fix it and refund the extra charge.",
+            "expected": "billing",
+            "predicted": "billing",
+            "tricky": true,
+            "correct": true
+        },
+        {
+            "query": "The app closes by itself every time I open the reports page.",
+            "expected": "tech",
+            "predicted": "tech",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "I keep getting 'invalid token' when I try to log in on my phone.",
+            "expected": "tech",
+            "predicted": "tech",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "How do I export my data to a CSV file?",
+            "expected": "tech",
+            "predicted": "tech",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "Everything has been extremely slow since this morning. Is there an outage?",
+            "expected": "tech",
+            "predicted": "tech",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "The payment page shows an error every time I try to renew, so I can't pay.",
+            "expected": "tech",
+            "predicted": "tech",
+            "tricky": true,
+            "correct": true
+        },
+        {
+            "query": "What are your support hours on public holidays?",
+            "expected": "general",
+            "predicted": "general",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "Do you have a partnership program for agencies?",
+            "expected": "general",
+            "predicted": "general",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "Where is your company headquartered?",
+            "expected": "general",
+            "predicted": "general",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "I just wanted to say the new dashboard looks great. Keep it up!",
+            "expected": "general",
+            "predicted": "general",
+            "tricky": false,
+            "correct": true
+        },
+        {
+            "query": "My last support ticket took two weeks to get answered and I'm thinking of cancelling my subscription. Who can I send this complaint to?",
+            "expected": "general",
+            "predicted": "general",
+            "tricky": true,
+            "correct": true
+        }
+    ]
+}

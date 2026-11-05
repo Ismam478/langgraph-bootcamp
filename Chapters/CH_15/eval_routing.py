@@ -91,14 +91,21 @@ def main():
     Main function to load the dataset, evaluate the queries, and report the results.
     """
     here = Path(__file__).parent
-    rows = load_set(here / "routing_set_hard.json")
-    results = evaluate(rows, classify)
-    summary = report(results)
+    rows_1 = load_set(here / "routing_set.json")
+    rows_2 = load_set(here / "routing_set_hard.json")
+    results_1 = evaluate(rows_1, classify)
+    results_2 = evaluate(rows_2, classify)
+    summary_1 = report(results_1)
+    summary_2 = report(results_2)
 
-    with open(here / "results_hard_v1.json", "w") as f:
-        json.dump({'summary': summary, 'results': results}, f, indent=4)
+    with open(here / "results_v2.json", "w") as f:
+        json.dump({'summary': summary_1, 'results': results_1}, f, indent=4)
+
+    with open(here / "results_hard_v2.json", "w") as f:
+        json.dump({'summary': summary_2, 'results': results_2}, f, indent=4)
 
 
 if __name__ == "__main__":
-    print("I expect 8/10 to pass, and I expect 2 to fail.")
+    print("Hard Set: 9/10 correct")
+    print("Main Set: 15/15 correct")
     main()

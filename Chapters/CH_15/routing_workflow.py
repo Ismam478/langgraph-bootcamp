@@ -12,6 +12,12 @@ general = "Anything else that doesn't fit into billing or technical support. Thi
 
 # Conditional Router
 ROUTER_PROMPT_V1 = f"You are professional categorizer, these are the categories: Billing: {billing}, Tech: {tech}, General: {general}. I want you to find and give me the category of the user's query."
+TIE_BREAK_V2 = (
+    "Tie-break rule: if the customer asks how to operate a feature of the product, "
+    "choose Tech, even when that feature is about payments or billing."
+)
+ROUTER_PROMPT_V2 = ROUTER_PROMPT_V1 + " " + TIE_BREAK_V2
+
 
 # Routing graph
 class Route(BaseModel):
@@ -26,7 +32,7 @@ class GraphSchema(BaseModel):
 
 
 # Conditional Function
-def classify(query:str, prompt: str = ROUTER_PROMPT_V1) -> str:
+def classify(query:str, prompt: str = ROUTER_PROMPT_V2) -> str:
     """
     Classifies the user's query into one of the predefined categories: billing, tech, or general
     """
