@@ -40,8 +40,6 @@ def test_assign_workers_one_send_per_task():
         assert send.arg == {"task": f"task_{chr(97 + i)}", "index": i, "query": "test query"}
 
 # ---------- 3. a fake model ----------
-# Your nodes build `prompt | llm`, and `|` needs a Runnable on the right,
-# so the fake subclasses RunnableLambda instead of being a plain class.
 class FakeLLM(RunnableLambda):
     def __init__(self, plan, seen=None):
         self.seen = seen if seen is not None else []   # every prompt the fake receives
@@ -90,7 +88,6 @@ def test_llm_calls_total_is_n_plus_two(monkeypatch):
 # ---------- 5. ordering ----------
 # Through the whole graph this cannot be tested: LangGraph merges parallel updates
 # in Send order, not finish order. So test collector_node directly with shuffled input.
- 
 def test_collector_sorts_shuffled_results(monkeypatch):
     seen = []
     monkeypatch.setattr(ow, "get_llm", lambda *a, **k: FakeLLM([], seen=seen))
