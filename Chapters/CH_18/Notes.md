@@ -5,7 +5,7 @@
 
 ## Thread memory vs long-term memory
 - Thread memory: Each chat session has its own thread id to remember the chat history. one thread's convo can't overlap with other threads.
-- Long-term memory: Remembers only selective informations to personalize itself for the user.
+- Long-term memory: long-term memory is shared across threads and remembers only selective informations to personalize itself for per user.
 
 ## Demos (gate evidence)
 ### Two threads stay separate
@@ -36,4 +36,4 @@
 
 ## Bugs I hit
 - Summary stored as a list with the `add` reducer: It kept appending the latest summaries with the older ones.
-- Changed the state type after data was saved: After changing the state type, I had to rerun the whole chatbot from beginning. 
+- Changed the state type after data was saved: After changing the state type, I faced `ValidationError`. So, I fixed it by starting a fresh thread 
