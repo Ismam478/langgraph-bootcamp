@@ -1,8 +1,7 @@
 from pydantic import BaseModel, Field
-from operator import add
 from Chapters.CH_6.llm import get_llm
 from langgraph.graph import StateGraph, START, END
-from typing import Annotated, TypedDict
+from typing import Annotated
 from langgraph.graph import add_messages
 from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -66,8 +65,16 @@ def show_state(graph, config):
     print("num_messages: ", len(vals.get('messages', [])))
     print("messages:")
     for m in vals.get('messages', []):
-        print("-", type(m).__name__, ":", m.content[:80])
+        print("-", type(m).__name__, ":", m.content[:80], "")
 
+
+def print_history(graph, config):
+    for s in graph.get_state_history(config):
+        if s.next:
+            print(s.config["configurable"]["checkpoint_id"], s.next,
+                len(s.values.get("messages", [])))
+
+        
 graph = StateGraph(GraphSchema)
 graph.add_node('chatbot', chatbot)
 graph.add_node('summarization', summarization)
@@ -84,7 +91,7 @@ if __name__ == '__main__':
 
         chatbot_graph = graph.compile(checkpointer=checkpointer)
 
-    #### Saving the graph as a PNG or Mermaid file
+        #### Saving the graph as a PNG or Mermaid file
         from pathlib import Path
 
         here = Path(__file__).parent
@@ -96,14 +103,28 @@ if __name__ == '__main__':
             (here / "chatbot_graph.mmd").write_text(drawing.draw_mermaid())
             print(f"PNG failed ({type(e).__name__}); saved graph.mmd instead")
 
-    #### Running the chatbot
+    
+        #### Running the chatbot
         while True:
-            user_input = input("User: ")
-            if user_input.lower() in ['exit', 'quit']:
+            user_input = input("User: ").strip()
+            
+            if user_input.lower() in ("exit", "quit"):
                 print("Exiting....")
                 break
 
-            response = chatbot_graph.invoke({'messages': [HumanMessage(content=user_input)]}, config=config)
+            if user_input.lower() == "history":
+                print_history(chatbot_graph, config)
+                continue
+
+            ### Replay Graph
+            if user_input.lower().startswith("replay "):
+                cp_id = user_input.split(maxsplit=1)[1]
+                replay_config = {"configurable": {"thread_id": "a", "checkpoint_id": cp_id}}
+                response = chatbot_graph.invoke(None, config=replay_config)
+            else:
+                response = chatbot_graph.invoke(
+                    {"messages": [HumanMessage(content=user_input)]}, config=config
+                )
 
             print(f"Chatbot: {response['messages'][-1].content}")
             show_state(chatbot_graph, config)
