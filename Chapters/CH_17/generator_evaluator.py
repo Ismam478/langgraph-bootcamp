@@ -6,6 +6,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, START, END
 
 MAX_ITERATIONS = 3
+MIN_WORDS = 40
+MAX_WORDS = 60
+
 
 class GraphSchema(BaseModel):
     query: str = Field(description="The query to be passed to Generator Node.")
@@ -13,44 +16,60 @@ class GraphSchema(BaseModel):
     evaluation: bool = Field(description="The evaluation result from the Evaluator Node.", default=False)
     feedback: Annotated[List[str], add] = Field(description="The feedback from the Evaluator Node.", default_factory=list)
     iterations: Annotated[int, add] = Field(description="The number of iterations the Generator Node has been used.", default=0)
+    keywords: List[str] = Field(description="The required keywords needed for the answer to the user query.", default_factory=list)
 
 class EvaluatorSchema(BaseModel):
     passed: bool = Field(description="If the last result from the Generator Node passed the evaluation based on the user query.")
     feedback: str = Field(description="Feedback from the evaluator regarding the last result.")
+
+def check_rules(text, keywords):
+    words = len(text.split())
+    missing = [k for k in keywords if k.lower() not in text.lower()]
+    length_ok = MIN_WORDS <= words <= MAX_WORDS
+    return words, missing, length_ok
 
 def evaluator_node(state: GraphSchema) -> dict:
     """
     Evaluates the last result from the Generator Node based on the user query.
     """
     last_result = state.results[-1]
+    keywords = state.keywords
+    words, missing_keywords, length_ok = check_rules(last_result, keywords)
 
-    llm = get_llm().with_structured_output(EvaluatorSchema)
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", """You are a strict QA Evaluator Node in an iterative execution loop.
-                Your sole objective is to determine if a generated result completely and accurately answers the user's query.
+    if not length_ok or missing_keywords:
+        evaluation = False
+        feedback = f"Failed: The response contains {words} words, which is outside the {MIN_WORDS}-{MAX_WORDS} word limit."
+        
+    else:
+        llm = get_llm().with_structured_output(EvaluatorSchema)
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", f"""You are a strict QA Evaluator Node in an iterative execution loop.
+                    Your sole objective is to determine if a generated result completely and accurately answers the user's query.
 
-                CRITICAL RULES:
-                1. **Strict Binary Evaluation:** The result must fully satisfy the user's core intent. If it contains partial answers, hallucinations, or misses requested details, it fails.
-                2. **Actionable Feedback Only:** If the result fails, you must state exactly what is missing, incorrect, or irrelevant (e.g., "Failed: The response explains what LangGraph is, but fails to answer the user's specific question about how memory works.").
-                3. **No Rewriting:** NEVER generate the corrected answer yourself. Only diagnose the gaps so the upstream Generator node can fix them.
-                4. **Success State:** If the query is fully answered, set the status to True and set feedback to "Approved." 
-                5. **Consistency:** Maintain a friendly tone and style (three keywords from query) throughout the generated content.
-                6. **Character limit** Contains 40-60 words"""),
-            
-            ("user", """USER QUERY:
-                {user_query}
+                    CRITICAL RULES:
+                    1. **Strict Binary Evaluation:** The result must fully satisfy the user's core intent. If it contains partial answers, hallucinations, or misses requested details, it fails.
+                    2. **Actionable Feedback Only:** If the result fails, you must state exactly what is missing, incorrect, or irrelevant (e.g., "Failed: The response explains what LangGraph is, but fails to answer the user's specific question about how memory works.").
+                    3. **No Rewriting:** NEVER generate the corrected answer yourself. Only diagnose the gaps so the upstream Generator node can fix them.
+                    4. **Success State:** If the query is fully answered, set the status to True and set feedback to "Approved." 
+                    5. **Consistency:** make sure to Maintain a friendly tone and style (three keywords from query) throughout the generated content.
+                    6. **Character limit** Should Contain only to between {MIN_WORDS} and {MAX_WORDS} words for the answer. If it exceeds the limit, specify the exact word count and ask to reduce it to between {MIN_WORDS} and {MAX_WORDS} words. """),
+                
+                ("user", """USER QUERY:
+                    {user_query}
 
-                GENERATED RESULT TO EVALUATE:
-                {last_result}""")
-        ]
-    )
-    chain = prompt | llm
-    result = chain.invoke({"user_query": state.query, "last_result": last_result})
-    evaluation = result.passed
-    feedback = result.feedback
 
-    print(f"\nEvaluation: {evaluation}, Feedback: {feedback}  [Iteration number: {state.iterations + 1}]")
+                    GENERATED RESULT TO EVALUATE:
+                    {last_result}""")
+            ]
+        )
+        chain = prompt | llm
+        result = chain.invoke({"user_query": state.query, "last_result": last_result})
+        evaluation = result.passed
+        feedback = result.feedback
+
+
+    print(f"\nEvaluation: {evaluation}, Feedback: {feedback} [Iteration number: {state.iterations + 1}]")
 
     return {"evaluation": evaluation, "feedback": [feedback], "iterations": 1}
 
@@ -61,12 +80,13 @@ def generator_node(state: GraphSchema) -> dict:
     query = state.query
     last_result = state.results[-1] if state.results else ""
     feedback = state.feedback[-1] if state.feedback else ""
+    keywords = state.keywords if state.keywords else []
 
     if not feedback:
         llm = get_llm()
         prompt = ChatPromptTemplate.from_messages(
             [
-                ('system', 'You are a Generator Node. Your task is to generate a result based on the user query.'),
+                ('system', 'You are a Generator Node. Your task is to generate an accurate result based on the user query.'),
                 ('user', 'User Query: {user_query}\n\nGenerate a result based on the user query.')
             ]
         )
@@ -76,15 +96,16 @@ def generator_node(state: GraphSchema) -> dict:
         llm = get_llm()
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", """You are a precision-driven Generator Node in an iterative execution loop.
+                ("system", f"""You are a precision-driven Generator Node in an iterative execution loop.
                     Your objective is to generate or revise content based strictly on the user's instructions.
 
                     CRITICAL REVISION RULES:
                     1. **Prioritize Feedback:** If Evaluator Feedback is provided, treat it as absolute truth. Fix the exact mathematical or stylistic failures listed (e.g., word count or missing keywords).
                     2. **Do Not Regress:** If parts of the previous draft were successful, keep them intact. Only alter what is necessary to pass the evaluation.
-                    3. **No Conversational Filler:** Output ONLY the final drafted text. NEVER include preambles, apologies, or meta-commentary (e.g., "Here is the revised version...", "I apologize for the mistake.")."""),
+                    3. **No Conversational Filler:** Output ONLY the final drafted text. NEVER include preambles, apologies, or meta-commentary (e.g., "Here is the revised version...", "I apologize for the mistake.").
+                    4. **Character limit** Should Contain only between {MIN_WORDS} and {MAX_WORDS} words for the answer."""),
                 
-                ("user", """USER QUERY / INSTRUCTIONS:
+                ("user", """USER QUERY:
                     {user_query}
 
                     PREVIOUS DRAFT (If any):
@@ -93,12 +114,15 @@ def generator_node(state: GraphSchema) -> dict:
                     EVALUATOR FEEDBACK (If any):
                     {feedback}
 
-                    Generate the optimized response.""")
+                    Must Include Keywords (If any):
+                    {keywords}
+
+                    Generate the optimized response, be carful about the Character limit.""")
             ]
         )
 
         chain = prompt | llm
-        new_result = chain.invoke({"user_query": query, "previous_results": last_result, "feedback": feedback}).content        
+        new_result = chain.invoke({"user_query": query, "previous_results": last_result, "feedback": feedback, "keywords": keywords}).content        
 
     return {"results": [new_result]}
 
@@ -137,3 +161,12 @@ if __name__ == '__main__':
     except Exception as e:
         (here / "graph.mmd").write_text(drawing.draw_mermaid())
         print(f"PNG failed ({type(e).__name__}); saved graph.mmd instead")
+
+    while True:
+        user_query = input("\nEnter your query (or 'exit' to quit): ")
+        if user_query.lower() == 'exit':
+            break
+
+        final_state = generator_evaluator.invoke({'query': user_query, 'keywords': ['insulated', 'leak-proof', 'lightweight']})
+
+        print(f"Final Result: {final_state['results'][-1]}")
