@@ -40,6 +40,8 @@ def evaluator_node(state: GraphSchema) -> dict:
         evaluation = False
         feedback = f"Failed: The response contains {words} words, which is outside the {MIN_WORDS}-{MAX_WORDS} word limit."
         
+        if missing_keywords:
+            feedback = feedback + " " +f"Failed: The response is missing the following keywords: {', '.join(missing_keywords) if missing_keywords else 'None'}."
     else:
         llm = get_llm().with_structured_output(EvaluatorSchema)
         prompt = ChatPromptTemplate.from_messages(

@@ -19,8 +19,8 @@
 | 2 | 44 | none | Yes | Yes | Approved |
 
 ## Run 2: the cap stops the loop
-- The impossible rule I added on purpose: 
-- Prediction (iterations before stopping):
+- The impossible rule I added on purpose: I instructed LLM to produce me an answer between 60 words (minimum) to 20 words (maximum).
+- Prediction (iterations before stopping): I predicted to iterate 3 times and get stopped by maximum iteration contsraint. 
 - Actual: 3 iterations, then it stopped
 | Iteration | Passed | Why it failed |
 |---|---|---|
