@@ -28,7 +28,33 @@ I built a custom LangGraph ReAct agent from scratch, manually wiring the nodes t
 
 ## 5. Custom nodes vs `ToolNode`
 - Jobs `ToolNode` took over from my code: It automatically loops through the requested tools, runs the functions, and wraps the outputs in ToolMessage
-- Default behaviour on a tool error (my prediction → what happened): I guessed it might handle them, but without extra setup, it often just lets the Python exception crash the whole chain.
-- With `handle_tool_errors`: It catches the crash and sends a generic "tool failed" message back to the model.
+- Default behaviour on a tool error (my prediction → what happened): I guessed it might handle them, but without `handle_tool_errors`, it always re-raises and crashes the whole chain.
+- With `handle_tool_errors`: It catches the crash and includes the exception message back to the model.
 - Error text: mine vs ToolNode's, which helps the model more? Mine is way better. It includes the exception text but with my custom one, I can handle the errors more accurately
-- What I'd choose in a real project, and why: Custom node, hands down. I need total control to run tools concurrently with `asyncio` (To make the process run smoother and faster), add human approval steps before dangerous tools run, and handle errors my specific way.
+- What I'd choose in a real project, and why: Custom node, hands down. I can add human approval steps before dangerous tools run, and handle errors my specific way.
+
+## 6. Evidence: divide 10 by 0 (three setups)
+| Setup | Crashed? | What the model received | Final answer |
+|---|---|---|---|
+| custom node | No | `ToolMessage`(content='Error: Cannot divide by zero.') | Division by zero is undefined. The calculator reported: Cannot divide by zero. If you’d like, I can help with a different calculation. |
+| ToolNode default | Yes | `ValueError`: Cannot divide by zero. | `ValueError` |
+| ToolNode handle_tool_errors=True | No | `ToolMessage`(content="Error: ValueError('Cannot divide by zero.')) | Division by zero is undefined, so 10 divided by 0 cannot be computed. |
+
+## 7. Mine vs create_agent (same 5 questions, same tools, same prompt)
+| Question | Mine: LLM calls / tool calls / answer | create_agent: LLM calls / tool calls / answer |
+|---|---|---|
+| 17 x 23 | 2 / 1 / `391` | 2 / 1 / `391` |
+| length of "Bangladesh" | 2 / 1 / `'has 10 characters'` | 2 / 1 / `'has 10 characters'` |
+| 17 x 23 + length | 2 / 2 / `401` | 2 / 2 / `401` |
+| date and time | 2 / 1 / `2026-11-16 02:00:28` | 2 / 1 / `2026-11-16 01:55:36` |
+| divide 10 by 0 | 2 / 1 / `Division by zero is undefined`  | crashed: `ValueError`: Cannot divide by zero. (default tool node re-raises) |
+- Differences I noticed: `create_agent` re-raises by default; handling needs wrap_tool_call middleware
+- What I'd choose in a real project, and why: I'd choose a `custom agent` over `create_agent` to use human approval nodes before executing specific tools
+
+## 8. Counter (one real run)
+- Query: What is the date and time right now?
+- LLM calls / input tokens / output tokens: 2 / 367 / 284
+
+## 9. Gate
+- Rebuilt from a blank file on (date), time taken: Rebuilt from a blank file on 15 Nov 2026, ~40 min.
+- The loop in my own words (who decides to call a tool, who runs it, what stops the loop): LLM decides to call a tool, my code runs the particular funtion/ tool. When LLm has required information to answer the user's query, it stops.

@@ -5,13 +5,17 @@ from datetime import datetime
 from context.dev import ContextDev
 from operator import add
 import os, json
-from langchain_core.messages import HumanMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.errors import GraphRecursionError
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import StateGraph, START, END, add_messages
+from langchain.agents import create_agent
 
 # Real ToolNode
 from langgraph.prebuilt import ToolNode
+
+USE_CUSTOM_TOOL_NODE = True
+USE_CUSTOM_AGENT = False
 
 
 # Defining The State Graph
@@ -122,7 +126,7 @@ def custom_tool_node(state:graph_schema):
                 selected_tool = tools_by_name[tool_name]
                 tool_response = selected_tool.invoke(tool_args)
 
-                tool_results.append(ToolMessage(content=tool_response, tool_call_id=tool_id))       
+                tool_results.append(ToolMessage(content=str(tool_response), tool_call_id=tool_id))       
 
             except Exception as e:
                 tool_results.append(ToolMessage(content=f"Error: {e}", tool_call_id=tool_id, status="error"))       
@@ -138,19 +142,32 @@ def if_tool_call(state:graph_schema):
         return 'end'
 
 
-# Defining the state graph
-graph = StateGraph(graph_schema)
+if USE_CUSTOM_AGENT:
+    # Defining the state graph
+    graph = StateGraph(graph_schema)
 
-graph.add_node('llm_node', llm_node)
-# graph.add_node('tool_node', custom_tool_node)
-graph.add_node('tool_node', ToolNode(tool_box, handle_tool_errors=True))
+    graph.add_node('llm_node', llm_node)
 
-graph.add_edge(START, 'llm_node')
-graph.add_conditional_edges('llm_node', if_tool_call, {'tool_node': 'tool_node', 'end': END})
-graph.add_edge('tool_node', 'llm_node')
+    if USE_CUSTOM_TOOL_NODE:
+        graph.add_node('tool_node', custom_tool_node)
+    else:
+        graph.add_node('tool_node', ToolNode(tool_box, handle_tool_errors=True))
+
+    graph.add_edge(START, 'llm_node')
+    graph.add_conditional_edges('llm_node', if_tool_call, {'tool_node': 'tool_node', 'end': END})
+    graph.add_edge('tool_node', 'llm_node')
 
 
-react_agent = graph.compile()
+    react_agent = graph.compile()
+else:
+    llm = get_llm()
+    prompt = 'Imagine you are a helpful assistant, who uses only the provided tools to answer the user\'s question(dont try to find the answer on your own). Also dont make up answers, say "I dont Know" for the things you cannot answer'
+    react_agent = create_agent(
+                model=llm,
+                tools=tool_box,
+                state_schema=graph_schema,
+                system_prompt= prompt
+            )
 
 if __name__ == "__main__":
     # Saving the graph as a PNG or Mermaid file
@@ -167,11 +184,26 @@ if __name__ == "__main__":
 
     # Invoking the ReAct agent with a sample query
     try:
-        response = react_agent.invoke({'messages': [HumanMessage(content="divide 10 by 0")]}, config={"recursion_limit": 6})
-        print(f"Final Response: {response['messages'][-1].content}")
-        print(f"\n\n\n {response['messages']}")
-        print(f"\n\n\n {response['llm_calls']}")
-        print(f"\n\n\n {response['input_tokens']}")
-        print(f"\n\n\n {response['output_tokens']}")
+        queries = ["What is 17 times 23?", "How many characters are in the word “Bangladesh”?", "What is 17 times 23, plus the length of the word “Bangladesh”?", "What is the date and time right now?", "Divide 10 by 0."]
+        for q in queries:
+            try:
+                response = react_agent.invoke({'messages': [HumanMessage(content=q)]}, config={"recursion_limit": 10})
+                print(f"\n\nQuery: {q}")
+                print(f"Final Response: {response['messages'][-1].content}")
+                llm_count = 0
+                tool_count = 0
+                for msg in response['messages']:
+                    if isinstance(msg, AIMessage):
+                        llm_count += 1
+                    if isinstance(msg, ToolMessage):
+                        tool_count += 1
+                print(f"LLM calls: {llm_count}")
+                print(f"Tool calls: {tool_count}")
+                print(f"Input Tokens: {response['messages'][-1].usage_metadata['input_tokens']}")
+                print(f"Output Tokens: {response['messages'][-1].usage_metadata['output_tokens']}")
+                print(f"\n{'-' * 50}\n")
+            except Exception as e:
+                print(f"Error occurred while processing query '{q}': {e}")
+                continue
     except GraphRecursionError as e:
        print("Stopped by the safety limit:", e)
