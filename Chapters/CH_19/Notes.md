@@ -24,7 +24,7 @@
   - The second draft became more formal (changed the closing to "Sincerely"), the graph paused again, and I approved. The email was saved.
   - Earlier run: rejected twice ("I will be back on 19 Nov 2026, also add my name", then "add supervisor's name"). Both pieces of feedback appeared in the next draft.
 - Edit transcript: The original draft from the LLM was overwritten with my text, and the file contained exactly my text.
-- Cross-process: command I ran in process 1, then process 2, and what the file contained:
+- Cross-process: Process 1: `python -m Chapters.CH_19.HumanInTheLoop start`, topic "Need three days leave"; it printed "Paused for next Invocation" and exited. Process 2 (a new run): `... resume`; it showed the saved draft ("Request for three days' leave"), I approved, and it printed "Email Saved Successfully".
 
 ## Bugs I hit
 - Returned `Command(resume=True)` from a node: approving silently ended the graph without writing the email.
@@ -33,4 +33,8 @@
 - `feedback` was not cleared after use: the next email on the same thread was a revision of the old one.
 - Typing a sentence instead of approve/reject/edit: the script printed "Please type approve, reject or edit." and showed the draft again.
 
- 
+## Tests
+- What each test protects, and the mutation check:
+
+## Gate
+- All three paths pass tests, and the cross-process resume works:
