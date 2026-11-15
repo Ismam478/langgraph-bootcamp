@@ -12,3 +12,4 @@ wheels/
 checkpoints.sqlite
 checkpoints.sqlite-wal
 checkpoints.sqlite-shm
+email_draft.txt
