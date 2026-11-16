@@ -6,9 +6,12 @@ from langgraph.types import interrupt, Command
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.checkpoint.sqlite import SqliteSaver
 import sys
+from pathlib import Path
 
 MIN_WORDS = 50
 MAX_WORDS = 125
+
+OUTPUT_FILE = (Path(__file__).parent / "email_draft.txt")
 
 class GraphSchema(BaseModel):
     topic: str = Field(description="The topic to write email.")
@@ -64,11 +67,10 @@ def approval_node(state: GraphSchema) -> Command[Literal['write', 'draft']]:
 
 
 def write_email_to_txt(state: GraphSchema) -> dict:
-    from pathlib import Path
-    here = Path(__file__).parent
-    with open((here / "email_draft.txt"), "a") as f:
+    
+    with open(OUTPUT_FILE, "a") as f:
         f.write(f"{state.results}\n{'-'*40}\n")
-
+    
     print("\nEmail Saved Successfully")
     return {}
 
@@ -110,7 +112,6 @@ builder.add_edge('write', END)
 config = {'configurable': {'thread_id': 'a'}}
 
 if __name__ == '__main__':
-    from pathlib import Path
     here = Path(__file__).parent
 
     mode = sys.argv[1] if len(sys.argv) > 1 else 'run'
