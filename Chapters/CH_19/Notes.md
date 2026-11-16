@@ -33,8 +33,5 @@
 - `feedback` was not cleared after use: the next email on the same thread was a revision of the old one.
 - Typing a sentence instead of approve/reject/edit: the script printed "Please type approve, reject or edit." and showed the draft again.
 
-## Tests
-- What each test protects, and the mutation check:
-
 ## Gate
-- All three paths pass tests, and the cross-process resume works:
+- All three paths (approve, edit, reject) pass tests, and the cross-process resume works: 8 tests pass, and the demo above ran in two separate processes.
