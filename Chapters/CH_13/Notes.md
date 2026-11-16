@@ -28,9 +28,9 @@ I built a custom LangGraph ReAct agent from scratch, manually wiring the nodes t
 
 ## 5. Custom nodes vs `ToolNode`
 - Jobs `ToolNode` took over from my code: It automatically loops through the requested tools, runs the functions, and wraps the outputs in ToolMessage
-- Default behaviour on a tool error (my prediction → what happened): I guessed it might handle them, but without `handle_tool_errors`, it always re-raises and crashes the whole chain.
+- Default behaviour on a tool error (my prediction → what happened): I guessed it might handle them, but without `handle_tool_errors`, it always re-raises and crashes the run.
 - With `handle_tool_errors`: It catches the crash and includes the exception message back to the model.
-- Error text: mine vs ToolNode's, which helps the model more? Mine is way better. It includes the exception text but with my custom one, I can handle the errors more accurately
+- Error text: mine vs ToolNode's, which helps the model more? Mine is way better because I pass in `status='Error'` along with the error as `ToolMessage`. It includes the exception text but with my custom one, I can handle the errors more accurately
 - What I'd choose in a real project, and why: Custom node, hands down. I can add human approval steps before dangerous tools run, and handle errors my specific way.
 
 ## 6. Evidence: divide 10 by 0 (three setups)
@@ -48,7 +48,7 @@ I built a custom LangGraph ReAct agent from scratch, manually wiring the nodes t
 | 17 x 23 + length | 2 / 2 / `401` | 2 / 2 / `401` |
 | date and time | 2 / 1 / `2026-11-16 02:00:28` | 2 / 1 / `2026-11-16 01:55:36` |
 | divide 10 by 0 | 2 / 1 / `Division by zero is undefined`  | crashed: `ValueError`: Cannot divide by zero. (default tool node re-raises) |
-- Differences I noticed: `create_agent` re-raises by default; handling needs wrap_tool_call middleware
+- Differences I noticed: `create_agent` re-raises errors by default, handling needs wrap_tool_call middleware
 - What I'd choose in a real project, and why: I'd choose a `custom agent` over `create_agent` to use human approval nodes before executing specific tools
 
 ## 8. Counter (one real run)
