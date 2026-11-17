@@ -118,12 +118,3 @@ Each chapter folder has a `Notes.md` with what I built, how it works in my words
 | 18 | Memory and checkpoints | Done |
 | 19 | Human-in-the-loop | Done |
 | Capstone | Support Triage Assistant | In progress |
-
-## Lessons that stuck
-
-- A node returns only the keys it changes; reducers decide how updates merge.
-- Put rules you can check in Python (word count, keywords) and use the model only for judgement.
-- A tool error should become a message the model can read, not a crash.
-- `interrupt()` re-runs its node from the first line on resume, so side effects go in a separate node after approval.
-- Test with fake models: no cost, no flakiness, and you can inspect exactly what the model was sent.
-- Predict before you run, then compare. The gap is where the learning is.
